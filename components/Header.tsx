@@ -1,14 +1,18 @@
+
 import React from 'react';
 import type { Language, TranslationKeys } from '../translations';
 import SparklesIcon from './icons/SparklesIcon';
 import QuestionMarkCircleIcon from './icons/QuestionMarkCircleIcon';
 import PlusIcon from './icons/PlusIcon';
 import KeyIcon from './icons/KeyIcon';
+import { AI_MODELS } from '../constants';
 
 
 interface HeaderProps {
   language: Language;
   setLanguage: (lang: Language) => void;
+  selectedModelId: string;
+  setSelectedModelId: (id: string) => void;
   onOpenGuide: () => void;
   onNewProject: () => void;
   onOpenApiKeySettings: () => void;
@@ -18,6 +22,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ 
   language, 
   setLanguage, 
+  selectedModelId,
+  setSelectedModelId,
   t,
   onOpenGuide,
   onNewProject,
@@ -41,6 +47,23 @@ const Header: React.FC<HeaderProps> = ({
           <PlusIcon className="w-5 h-5" />
           {t.newProjectButton}
         </button>
+
+        {/* AI Model Selector */}
+        <div className="flex items-center gap-x-2">
+           <label htmlFor="model-select" className="text-sm font-medium text-gray-400 hidden md:inline">
+            {t.modelLabel}:
+          </label>
+          <select
+            id="model-select"
+            value={selectedModelId}
+            onChange={(e) => setSelectedModelId(e.target.value)}
+            className="bg-[#0D0D0F] text-gray-300 p-2 rounded-md border border-gray-600 focus:ring-1 focus:ring-[#5BEAFF] focus:border-[#5BEAFF] transition text-sm min-w-[180px]"
+          >
+            {AI_MODELS.map(model => (
+                <option key={model.id} value={model.id}>{model.label}</option>
+            ))}
+          </select>
+        </div>
 
         <button 
           onClick={onOpenApiKeySettings}

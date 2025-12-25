@@ -1,3 +1,4 @@
+
 import type { VideoConfig } from './types';
 
 export type Language = 'en' | 'vi';
@@ -18,6 +19,7 @@ const en = {
     guideButtonTooltip: "Show User Guide",
     languageLabel: "Language",
     manageKeysTooltip: "Manage API Keys",
+    modelLabel: "Model",
 
     // ApiKeyModal.tsx
     apiKeyModalTitle: "API Key Management",
@@ -47,8 +49,7 @@ const en = {
     generateStoryboardButton: "Generate Storyboard",
     generatingStoryboardButton: "Generating Storyboard...",
     
-    // Obsolete character keys replaced or removed.
-    // The following keys are placeholders to avoid breaking any lingering references, but are not used in the new UI.
+    // Obsolete keys
     autoGenerateButton: "",
     analyzingScript: "",
     characterNamePlaceholder: "",
@@ -256,7 +257,6 @@ Each scene object must have the following structure and adhere to these strict r
 **IMPORTANT:** Ensure the final output is a single, perfectly formatted JSON object starting with \`{\` and ending with \`}\`, containing the 'scenes' array. Do not add any text or markdown before or after the JSON.`;
     },
     
-    // Obsolete character system instructions are not needed.
     systemInstruction_generateCharacters: (duration: number) => ``,
     systemInstruction_generateCharacterFromImage: () => ``,
 };
@@ -277,6 +277,7 @@ const vi = {
     guideButtonTooltip: "Hiển thị hướng dẫn sử dụng",
     languageLabel: "Ngôn ngữ",
     manageKeysTooltip: "Quản lý API Key",
+    modelLabel: "Model AI",
 
     // ApiKeyModal.tsx
     apiKeyModalTitle: "Quản lý API Key",
@@ -306,7 +307,7 @@ const vi = {
     generateStoryboardButton: "Tạo bảng phân cảnh",
     generatingStoryboardButton: "Đang tạo bảng phân cảnh...",
     
-    // Obsolete character keys
+    // Obsolete keys
     autoGenerateButton: "",
     analyzingScript: "",
     characterNamePlaceholder: "",
@@ -399,7 +400,6 @@ const vi = {
         { title: "Phong cách rất quan trọng", description: "Phong cách ban đầu bạn chọn ảnh hưởng đến mọi thứ. Hãy thử nghiệm với các phong cách khác nhau để có kết quả độc đáo." },
     ],
     
-    // PromptHelper.tsx is mostly English terms, so translation is minimal.
     promptHelperTitle: "Thêm nhanh Prompt",
     promptHelperTags: {
         camera_angles: { group: "Góc máy", tags: en.promptHelperTags.camera_angles.tags },

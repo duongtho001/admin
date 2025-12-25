@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 
 export interface ReferenceImage {
@@ -14,7 +15,7 @@ export interface ScenePrompt {
   environment: string;
   elements: string[];
   motion: string;
-  dialogue: string; // The dialogue or voiceover text for the scene
+  dialogue: string;
   audio: string;
   ending: string;
   text: string;
@@ -41,6 +42,7 @@ export interface VideoConfig {
   includeDialogue: boolean;
   dialogueLanguage: string;
   format: 'trailer' | 'short' | 'longform';
+  modelId: string;
 }
 
 export interface Project {

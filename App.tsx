@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import InputPanel from './components/InputPanel';
@@ -10,6 +11,7 @@ import ConfirmationModal from './components/ConfirmationModal';
 import ApiKeyModal from './components/ApiKeyModal';
 import ExclamationTriangleIcon from './components/icons/ExclamationTriangleIcon';
 import CodeBracketIcon from './components/icons/CodeBracketIcon';
+import { AI_MODELS } from './constants';
 
 declare var JSZip: any;
 
@@ -27,6 +29,7 @@ const App: React.FC = () => {
     includeDialogue: false,
     dialogueLanguage: 'vi',
     format: 'trailer',
+    modelId: AI_MODELS[0].id,
   });
   const [scenes, setScenes] = useState<Scene[]>([]);
   
@@ -80,6 +83,10 @@ const App: React.FC = () => {
     setUserApiKeys(keys);
   };
 
+  const setSelectedModelId = (id: string) => {
+    setVideoConfig(prev => ({ ...prev, modelId: id }));
+  };
+
   const resetState = () => {
     setProjectName(t.untitledProject);
     setReferenceImages([]);
@@ -92,6 +99,7 @@ const App: React.FC = () => {
         includeDialogue: false,
         dialogueLanguage: 'vi',
         format: 'trailer',
+        modelId: videoConfig.modelId, // Keep current model
     });
     setError(null);
     setIsLoading(false);
@@ -119,7 +127,7 @@ const App: React.FC = () => {
     setIsIdeaLoading(true);
     setError(null);
     try {
-      const idea = await generateStoryIdea(videoConfig.style, language);
+      const idea = await generateStoryIdea(videoConfig.style, language, videoConfig.modelId);
       setStoryIdea(idea);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -271,11 +279,9 @@ const App: React.FC = () => {
     setIsBatchGenerating(true);
     setError(null);
     
-    // Only generate for scenes that don't have an image yet
     const scenesToGenerate = scenes.filter(s => !s.imageUrl);
 
     for (const scene of scenesToGenerate) {
-        // We can reuse the single-scene generation logic
         setScenes(prev => prev.map(s => s.scene_id === scene.scene_id ? { ...s, isGeneratingImage: true } : s));
         try {
             const imageUrl = await generateSceneImage(scene.prompt, referenceImage.imageUrl);
@@ -285,7 +291,7 @@ const App: React.FC = () => {
             setError(`${errorMessage} Batch process stopped.`);
             setScenes(prev => prev.map(s => s.scene_id === scene.scene_id ? { ...s, isGeneratingImage: false } : s));
             setIsBatchGenerating(false);
-            return; // Stop on first error
+            return; 
         }
     }
 
@@ -305,7 +311,6 @@ const App: React.FC = () => {
         for (const scene of scenesWithImages) {
             const response = await fetch(scene.imageUrl!);
             const blob = await response.blob();
-            // Pad scene number for correct file sorting
             const sceneNumber = scene.scene_id.toString().padStart(3, '0');
             zip.file(`scene_${sceneNumber}.png`, blob);
         }
@@ -395,6 +400,8 @@ const App: React.FC = () => {
       <Header 
         language={language} 
         setLanguage={setLanguage} 
+        selectedModelId={videoConfig.modelId}
+        setSelectedModelId={setSelectedModelId}
         t={t} 
         onOpenGuide={() => setIsGuideVisible(true)}
         onNewProject={handleNewProjectRequest}

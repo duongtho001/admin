@@ -1,3 +1,4 @@
+
 export const VIDEO_STYLES = [
   { key: 'cinematic_travel', en: 'Cinematic Travel', vi: 'Du lịch điện ảnh' },
   { key: 'drone_flycam', en: 'Drone & Flycam Shots', vi: 'Cảnh quay Drone & Flycam' },
@@ -15,4 +16,11 @@ export const VIDEO_FORMATS = [
   { key: 'trailer', en: 'Trailer (Fast-paced)', vi: 'Trailer (Nhịp độ nhanh)' },
   { key: 'short', en: 'Short Film (Standard pace)', vi: 'Phim ngắn (Nhịp độ vừa)' },
   { key: 'longform', en: 'Long-form (Slow pace)', vi: 'Video dài (Nhịp độ chậm)' },
+];
+
+export const AI_MODELS = [
+  { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview', label: 'Default (Gemini 3 Flash Preview)' },
+  { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro Preview', label: 'Gemini 3 Pro Preview' },
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', label: 'Gemini 2.5 Flash' },
+  { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', label: 'Gemini 2.5 Pro' },
 ];

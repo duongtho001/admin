@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Modality, GenerateContentResponse } from "@google/genai";
 import type { VideoConfig, Scene, ScenePrompt } from '../types';
 import { Language, translations } from "../translations";
@@ -9,9 +10,7 @@ let userApiKeys: string[] = [];
 let currentKeyIndex = 0;
 
 export const setUserApiKeys = (keys: string[]) => {
-  // Store valid keys
   userApiKeys = keys.filter(k => k && k.trim().length > 0);
-  // Reset index when keys update
   currentKeyIndex = 0;
   console.log(`Gemini Service: Updated with ${userApiKeys.length} user API keys.`);
 };
@@ -33,13 +32,11 @@ async function withRetry<T>(
       lastError = error;
       const errorMessage = (error instanceof Error ? error.message : String(error)).toLowerCase();
 
-      // Check for retryable server error conditions (503, etc) but NOT 429 (handled by rotation)
       if (errorMessage.includes('503') || errorMessage.includes('overloaded') || errorMessage.includes('unavailable') || errorMessage.includes('fetch failed')) {
         const delay = initialDelay * (2 ** i);
         console.warn(`Attempt ${i + 1}/${retries} failed in ${context} with a server error. Retrying in ${delay}ms...`);
         await sleep(delay + Math.random() * 500);
       } else {
-        // Not a standard server retryable error (could be 429 or 400), throw to let rotation handler check it
         throw error;
       }
     }
@@ -49,26 +46,17 @@ async function withRetry<T>(
   throw lastError;
 }
 
-/**
- * Higher-order function to execute a Gemini API call with:
- * 1. Automatic Key Rotation on Quota errors (429, 403 quota)
- * 2. Exponential backoff for Server errors (503)
- */
 async function callGemini<T>(
   context: string,
   apiOperation: (apiKey: string) => Promise<T>
 ): Promise<T> {
-  // Determine how many times we can switch keys.
-  // If we have 5 keys, we try max 5 times.
-  // If we have 0 user keys (using env), we try 1 time.
   const maxAttempts = Math.max(1, userApiKeys.length);
   
   let attempt = 0;
   let lastError: unknown;
 
   while (attempt < maxAttempts) {
-    // Determine which key to use for this attempt
-    let apiKey = process.env.API_KEY; // Default
+    let apiKey = process.env.API_KEY; 
     if (userApiKeys.length > 0) {
       apiKey = userApiKeys[currentKeyIndex];
     }
@@ -78,13 +66,11 @@ async function callGemini<T>(
     }
 
     try {
-      // Execute the operation with standard retries for network/503 errors
       return await withRetry(() => apiOperation(apiKey!), 3, 1000, context);
     } catch (error) {
       lastError = error;
       const errorMessage = (error instanceof Error ? error.message : String(error)).toLowerCase();
 
-      // Check if it's a Quota Error
       if (
         errorMessage.includes('429') || 
         errorMessage.includes('quota') || 
@@ -93,24 +79,20 @@ async function callGemini<T>(
       ) {
         console.warn(`Quota exhausted for key index ${currentKeyIndex} in ${context}.`);
         
-        // If we have multiple keys, rotate to the next one
         if (userApiKeys.length > 1) {
           console.warn(`Switching to next API key...`);
           currentKeyIndex = (currentKeyIndex + 1) % userApiKeys.length;
           attempt++;
-          continue; // Retry the loop with the new key
+          continue; 
         } else {
-          // No other keys to try
           break;
         }
       } else {
-        // If it's not a quota error (e.g. 400 Bad Request), do not rotate, just fail.
         throw error;
       }
     }
   }
 
-  // If we exit the loop, we failed
   throw lastError;
 }
 
@@ -188,8 +170,8 @@ const fullResponseSchema = {
 export const generateStoryIdea = async (
   style: string,
   language: Language,
+  model: string = 'gemini-3-flash-preview'
 ): Promise<string> => {
-  const model = 'gemini-2.5-flash';
   const systemInstruction = translations[language].systemInstruction_generateStoryIdea(style);
 
   try {
@@ -216,7 +198,8 @@ export const generateScript = async (
   config: VideoConfig,
   language: Language
 ): Promise<string> => {
-  const model = 'gemini-2.5-pro';
+  // Use user selected model for complex script writing
+  const model = config.modelId || 'gemini-3-pro-preview';
   const systemInstruction = translations[language].systemInstruction_generateScript(config);
 
   const userPrompt = `
@@ -252,7 +235,8 @@ export const generateScenePrompts = async (
   language: Language,
   existingScenes: Scene[] = []
 ): Promise<Scene[]> => {
-  const model = 'gemini-2.5-flash';
+  // Use user selected model for storyboard JSON generation
+  const model = config.modelId || 'gemini-3-flash-preview';
   
   const isContinuation = existingScenes.length > 0;
   const systemInstruction = translations[language].systemInstruction_generateScenes(config, isContinuation);
